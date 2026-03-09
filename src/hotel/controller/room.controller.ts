@@ -109,6 +109,154 @@ export const getTotalRoomByStatusController = async (
 }
 
 
+export const searchForRoomController = async (
+    req: Request,
+    res: Response,
+) => {
+  
+  try {
+
+    const hotels = await searchHotels(req.query);
+
+    res.status(200).json({
+      success: true,
+      total: hotels.length,
+      data: hotels
+    });
+  
+    
+  } catch (err: any) {
+    // signup error
+    res.status(500).json({ message: err.message });
+  }
+  
+}
+
+
+export const getSingleRoomController = async (
+    req: Request,
+    res: Response,
+) => {
+  
+  try {
+
+    const { roomId } = req.params;
+
+    const room = await RoomModel.findOne({
+    _id: roomId
+    })
+    .populate({
+      path: "hotel",
+      select: "name email phoneNumber address createdAt updatedAt" // safe fields only
+    });
+
+
+    if (!room) {
+      return res.status(404).json({
+        success: false,
+        message: "Room not found"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: room
+    });
+  
+    
+  } catch (err: any) {
+    // signup error
+    res.status(500).json({ message: err.message });
+  }
+  
+}
+
+
+
+const searchHotels = async (query: any) => {
+
+  const roomFilter: any = {
+    status: RoomStatus.Available
+  };
+
+  // room filters
+  if (query.type) roomFilter.type = query.type;
+
+  if (query.minPrice || query.maxPrice) {
+    roomFilter.price = {};
+
+    if (query.minPrice) roomFilter.price.$gte = Number(query.minPrice);
+    if (query.maxPrice) roomFilter.price.$lte = Number(query.maxPrice);
+  }
+
+  if (query.maxGuest) {
+    roomFilter.maxGuest = { $gte: Number(query.maxGuest) };
+  }
+
+  const booleanFields = [
+    "parking",
+    "accessibility",
+    "petFriendly",
+    "breakfast",
+    "wifi",
+    "pool"
+  ];
+
+  booleanFields.forEach((field) => {
+    if (query[field] !== undefined) {
+      roomFilter[field] = query[field] === "true";
+    }
+  });
+
+  const hotelMatch: any = {};
+
+  // hotel search by name
+  if (query.name) {
+    hotelMatch.name = {
+      $regex: query.name,
+      $options: "i"
+    };
+  }
+
+  const hotels = await HotelModel.aggregate([
+
+    {
+      $match: hotelMatch
+    },
+
+    {
+      $lookup: {
+        from: "rooms",
+        let: { hotelId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ["$hotel", "$$hotelId"]
+              }
+            }
+          },
+          {
+            $match: roomFilter
+          }
+        ],
+        as: "rooms"
+      }
+    },
+
+    // remove hotels without rooms
+    {
+      $match: {
+        "rooms.0": { $exists: true }
+      }
+    }
+
+  ]);
+
+  return hotels;
+};
+
+
 
 
 
