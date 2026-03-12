@@ -16,6 +16,12 @@ const HotelSchema = new Schema<IHotel>(
         type: String,
         required: true
       },
+      branches: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "Hotels"
+        }
+      ],
       phoneNumber: {
         type: String,
         required: true,

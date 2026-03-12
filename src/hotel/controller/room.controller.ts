@@ -15,7 +15,7 @@ export const userAddRoomController = async (
   
   try {
     const {
-      type, price, parking, accessibility, petFriendly, breakfast, wifi, pool
+      type, price, parking, accessibility, petFriendly, breakfast, wifi, pool, maxGuest
     } = req.body;
 
     const file = req.file
@@ -39,7 +39,8 @@ export const userAddRoomController = async (
       breakfast,
       wifi,
       pool,
-      picture
+      picture,
+      maxGuest
     })
 
     const saveNewRoom = await newRoom.save()
@@ -113,10 +114,11 @@ export const searchForRoomController = async (
     req: Request,
     res: Response,
 ) => {
-  
   try {
 
-    const hotels = await searchHotels(req.query);
+    const loginHotelId = req.hotel?._id
+
+    const hotels = await searchHotels(req.query, loginHotelId);
 
     res.status(200).json({
       success: true,
@@ -173,7 +175,94 @@ export const getSingleRoomController = async (
 
 
 
-const searchHotels = async (query: any) => {
+// const searchHotels = async (query: any, userId: any) => {
+
+//   const roomFilter: any = {
+//     status: RoomStatus.Available
+//   };
+
+//   // room filters
+//   if (query.type) roomFilter.type = query.type;
+
+//   if (query.minPrice || query.maxPrice) {
+//     roomFilter.price = {};
+
+//     if (query.minPrice) roomFilter.price.$gte = Number(query.minPrice);
+//     if (query.maxPrice) roomFilter.price.$lte = Number(query.maxPrice);
+//   }
+
+//   if (query.maxGuest) {
+//     roomFilter.maxGuest = { $gte: Number(query.maxGuest) };
+//   }
+
+//   const booleanFields = [
+//     "parking",
+//     "accessibility",
+//     "petFriendly",
+//     "breakfast",
+//     "wifi",
+//     "pool"
+//   ];
+
+//   booleanFields.forEach((field) => {
+//     if (query[field] !== undefined) {
+//       roomFilter[field] = query[field] === "true";
+//     }
+//   });
+
+//   const hotelMatch: any = {};
+
+//   // hotel search by name
+//   if (query.name) {
+//     hotelMatch.name = {
+//       $regex: query.name,
+//       $options: "i"
+//     };
+//   }
+
+//   const hotels = await HotelModel.aggregate([
+
+//     {
+//       $match: hotelMatch
+//     },
+
+//     {
+//       $lookup: {
+//         from: "rooms",
+//         let: { hotelId: "$_id" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $eq: ["$hotel", "$$hotelId"]
+//               }
+//             }
+//           },
+//           {
+//             $match: roomFilter
+//           }
+//         ],
+//         as: "rooms"
+//       }
+//     },
+
+//     // remove hotels without rooms
+//     {
+//       $match: {
+//         "rooms.0": { $exists: true }
+//       }
+//     }
+
+//   ]);
+
+//   return hotels;
+// };
+
+
+const searchHotels = async (query: any, userId: any) => {
+
+  // get the current hotel (user)
+  const userHotel = await HotelModel.findById(userId).select("branches");
 
   const roomFilter: any = {
     status: RoomStatus.Available
@@ -218,8 +307,12 @@ const searchHotels = async (query: any) => {
     };
   }
 
-  const hotels = await HotelModel.aggregate([
+  // 🔹 branch logic
+  if (userHotel && userHotel.branches && userHotel.branches.length > 0) {
+    hotelMatch._id = { $in: userHotel.branches };
+  }
 
+  const hotels = await HotelModel.aggregate([
     {
       $match: hotelMatch
     },

@@ -11,6 +11,10 @@ const TestQuestionSchema = new Schema<ICustomer>(
         type: Schema.Types.ObjectId, ref: 'Rooms',
         required: true,
       },
+      bookBy: {
+        type: Schema.Types.ObjectId, ref: 'Hotels',
+        required: true,
+      },
       name: {
         type: String,
         required: true,
@@ -46,7 +50,7 @@ const TestQuestionSchema = new Schema<ICustomer>(
        status: {
         type: String,  
         enum: Object.values(CustomerStatus),  
-        default: CustomerStatus. Booked
+        default: CustomerStatus.Pending
       },
       createdAt: {
         type: Date,

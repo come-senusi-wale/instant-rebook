@@ -5,6 +5,7 @@ export interface IHotel extends Document {
   name: string;
   email: string;
   password: string;
+  branches: Types.ObjectId[];
   phoneNumber: string;
   address?: string;
   emailOtp: {

@@ -4,13 +4,15 @@ import { IRoom } from "./room.interface";
 
 export enum CustomerStatus {
     Booked = 'Booked',
+    Pending = 'Pending',
     Canceled = 'Canceled',
 }
 
 export interface ICustomer extends Document {
   _id: ObjectId;
-  hotel:  IHotel['_id'];
-  room:  IRoom['_id'];
+  hotel: IHotel['_id'];
+  room: IRoom['_id'];
+  bookBy: IHotel['_id'];
   name: string;
   email: string;
   phoneNumber: string;

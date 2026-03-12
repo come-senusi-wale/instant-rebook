@@ -59,63 +59,98 @@ export const hotelSignUpController = async (
     res.status(500).json({ message: err.message });
   }
   
-  }
+}
   
   
-  //admin signin by email/////////////
-  export const hotelSignInController = async (
-      req: Request,
-      res: Response,
-  ) => {
-  
-    try {
-        const {
-          email,
-          password,
-        } = req.body;
-        // Check for validation errors
-        const errors = validationResult(req);
-    
-        if (!errors.isEmpty()) {
-          return res.status(400).json({ errors: errors.array() });
-        }
-    
-        // try find hotel with the same email
-        const hotel = await HotelModel.findOne({ email });
-    
-        // check if hotel exists
-        if (!hotel) {
-          return res
-            .status(401)
-            .json({ message: "incorrect credential" });
-        }
-    
-        // compare password with hashed password in database
-        const isPasswordMatch = await bcrypt.compare(password, hotel.password);
-        if (!isPasswordMatch) {
-          return res.status(401).json({ message: "incorrect credential." });
-        }
-    
-        // generate access token
-        const accessToken = jwt.sign(
-          { 
-            id: hotel?._id,
-            email: hotel.email,
-          },
-          process.env.JWT_HOTEL_SECRET_KEY!,
-          //{ expiresIn: "24h" }
-        );
-    
-        // return access token
-        res.json({
-          message: "Login successfully",
-          Token: accessToken,
-        });
-    
-        
-    } catch (err: any) {
-        // signup error
-        res.status(500).json({ message: err.message });
+
+export const searchHotelPartnerController = async (
+    req: Request,
+    res: Response,
+) => {
+
+  try {
+      const { search } = req.query;
+
+      const query: any = {};
+
+    // Search by name if provided
+    if (search) {
+      query.name = { $regex: search, $options: "i" }; // case-insensitive
     }
-  }
+
+    const hotels = await HotelModel.find(query)
+      .select("_id name") // return only _id and name
+      .sort({ name: 1 }) // order by name (ascending)
+      .lean();
+    
+    // return access token
+    res.json({
+      success: true,
+      data: hotels
+    });
   
+      
+  } catch (err: any) {
+      // signup error
+      res.status(500).json({ message: err.message });
+  }
+}
+
+
+
+
+export const hotelSignInController = async (
+    req: Request,
+    res: Response,
+) => {
+
+  try {
+      const {
+        email,
+        password,
+      } = req.body;
+      // Check for validation errors
+      const errors = validationResult(req);
+  
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+  
+      // try find hotel with the same email
+      const hotel = await HotelModel.findOne({ email });
+  
+      // check if hotel exists
+      if (!hotel) {
+        return res
+          .status(401)
+          .json({ message: "incorrect credential" });
+      }
+  
+      // compare password with hashed password in database
+      const isPasswordMatch = await bcrypt.compare(password, hotel.password);
+      if (!isPasswordMatch) {
+        return res.status(401).json({ message: "incorrect credential." });
+      }
+  
+      // generate access token
+      const accessToken = jwt.sign(
+        { 
+          id: hotel?._id,
+          email: hotel.email,
+        },
+        process.env.JWT_HOTEL_SECRET_KEY!,
+        //{ expiresIn: "24h" }
+      );
+  
+      // return access token
+      res.json({
+        message: "Login successfully",
+        Token: accessToken,
+      });
+  
+      
+  } catch (err: any) {
+      // signup error
+      res.status(500).json({ message: err.message });
+  }
+}

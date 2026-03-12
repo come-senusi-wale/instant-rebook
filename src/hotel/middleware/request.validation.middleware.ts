@@ -68,6 +68,13 @@ export const validateAddRoomParams = [
     .isNumeric()
     .withMessage("price must be Number"),
 
+  body("maxGuest")
+    .notEmpty()
+    .withMessage("maxGuest is required")
+    .isNumeric()
+    .withMessage("maxGuest must be Number"),
+    
+
   body("parking")
     .notEmpty()
     .withMessage("parking is required")
