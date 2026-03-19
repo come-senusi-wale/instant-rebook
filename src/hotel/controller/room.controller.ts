@@ -269,7 +269,13 @@ const searchHotels = async (query: any, userId: any) => {
   };
 
   // room filters
-  if (query.type) roomFilter.type = query.type;
+  // if (query.type) roomFilter.type = query.type;
+  if (query.type) {
+    roomFilter.type = {
+      $regex: query.type,
+      $options: "i" // case-insensitive
+    };
+  }
 
   if (query.minPrice || query.maxPrice) {
     roomFilter.price = {};
@@ -342,12 +348,22 @@ const searchHotels = async (query: any, userId: any) => {
       $match: {
         "rooms.0": { $exists: true }
       }
+    },
+
+    {
+      $project: {
+        password: 0,
+        email: 0
+      }
     }
 
   ]);
 
   return hotels;
 };
+
+
+
 
 
 

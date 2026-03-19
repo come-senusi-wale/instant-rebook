@@ -14,7 +14,8 @@ export const hotelSignUpController = async (
       email,
       password,
       name, 
-      phoneNumber
+      phoneNumber,
+      branches
     } = req.body;
     // Check for validation errors
     const errors = validationResult(req);
@@ -39,7 +40,8 @@ export const hotelSignUpController = async (
       email: email,
       password: hashedPassword,
       name,
-      phoneNumber
+      phoneNumber,
+      branches
     });
     
     let hotelSaved = await hotel.save();

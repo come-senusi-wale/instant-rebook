@@ -43,6 +43,17 @@ export const validateCreateAccountParams = [
       }
       return true;
     }),
+
+    body("branches")
+      .optional()
+      .isArray()
+      .withMessage("Branches must be an array"),
+
+    body("branches.*")
+      .optional()
+      .isMongoId()
+      .withMessage("Each branch must be a valid Mongo ID"),
+
 ];
 
 export const validateLoginParams = [
@@ -114,12 +125,56 @@ export const validateAddRoomParams = [
 
 
 export const validateGetRoomByStatusParams = [
-  body("status")
+  query("status")
     .notEmpty()
     .withMessage("status is required")
     .isIn(Object.values(RoomStatus))
     .withMessage("Invalid room status"),
 ];
+
+
+export const validateBookRoomParams = [
+  body("roomId")
+    .notEmpty()
+    .withMessage("Please provide a valid roomId"),
+
+  body("name")
+    .notEmpty()
+    .withMessage("Please provide a valid name"),
+
+  body("email")
+    .notEmpty()
+    .withMessage("email is required")
+    .isEmail(),
+
+  body("phoneNumber")
+    .notEmpty()
+    .withMessage("phoneNumber is required"),
+
+  body("checkIn")
+    .notEmpty()
+    .withMessage("checkIn is required")
+    .isISO8601().withMessage("checkIn must be a valid date")
+    .toDate(),
+
+  body("checkOut")
+    .notEmpty()
+    .withMessage("checkOut is required")
+    .isISO8601().withMessage("checkOut must be a valid date")
+    .toDate(),
+
+  body("guest")
+    .notEmpty()
+    .withMessage("guest is required")
+    .isNumeric()
+    .withMessage("accessibility must be Number"),
+
+   body("taxe")
+    .notEmpty()
+    .withMessage("taxe is required")
+    .isNumeric()
+    .withMessage("taxe must be Number"),
+]
 
 
 
@@ -128,6 +183,7 @@ export const requestValidation = {
   validateCreateAccountParams,
   validateLoginParams,
   validateAddRoomParams,
-  validateGetRoomByStatusParams
+  validateGetRoomByStatusParams,
+  validateBookRoomParams
 
 }

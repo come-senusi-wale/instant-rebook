@@ -20,7 +20,7 @@ router.get("/rooms-by-status", checkHotelRole, requestValidation.validateGetRoom
 router.get("/search-room", searchForRoomController );
 router.get("/rooms/:roomId", getSingleRoomController);
 
-router.post("/booking", checkHotelRole, requestValidation.validateGetRoomByStatusParams, requestValidation.validateFormData, createCustomerBookingController );
+router.post("/booking", checkHotelRole, requestValidation.validateBookRoomParams, requestValidation.validateFormData, createCustomerBookingController );
 
 router.get("/guest-rebooked", checkHotelRole, totalGuestRebookedController );
 router.get("/fail-booking", checkHotelRole, totalFailBookingsController );

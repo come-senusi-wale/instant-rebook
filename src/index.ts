@@ -9,7 +9,7 @@ import rateLimit from "express-rate-limit";
 
 
 import hotelRoute from "./hotel/route/route";
-import adminRoute from "./admin/route/routes";
+// import adminRoute from "./admin/route/routes";
 
 dotenv.config(); // Load environment variables at the very beginning
 
@@ -70,7 +70,7 @@ app.use(
 );
 
 app.use("/api/hotel", hotelRoute);
-app.use("/admin", adminRoute);
+// app.use("/admin", adminRoute);
 
 
 // App initialized port

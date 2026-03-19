@@ -14,10 +14,10 @@ export const createCustomerBookingController = async (
   
   try {
     const {
-      name, email, phoneNumber, checkIn, checkOut, guest, taxe,
+      name, email, phoneNumber, checkIn, checkOut, guest, taxe, roomId,
     } = req.body;
 
-    const { roomId } = req.params;
+    // const { roomId } = req.params;
 
     const room = await RoomModel.findOne({_id: roomId });
 
