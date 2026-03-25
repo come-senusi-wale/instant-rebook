@@ -176,6 +176,32 @@ export const validateBookRoomParams = [
     .withMessage("taxe must be Number"),
 ]
 
+export const validateForgotPasswordParams = [
+  body("email")
+    .trim()
+    .isEmail()
+    .withMessage("Please provide a valid email"),
+]
+
+export const validateResetPasswordParams = [
+  body("password")
+    .trim()
+    .notEmpty()
+    .withMessage("Name is required"),
+
+  body("email")
+    .trim()
+    .isEmail()
+    .withMessage("Please provide a valid email"),
+
+  body("otp")
+    .trim()
+    .notEmpty()
+    .withMessage("Name is required"),
+]
+
+
+
 
 
 export const requestValidation = {
@@ -184,6 +210,7 @@ export const requestValidation = {
   validateLoginParams,
   validateAddRoomParams,
   validateGetRoomByStatusParams,
-  validateBookRoomParams
-
+  validateBookRoomParams,
+  validateForgotPasswordParams,
+  validateResetPasswordParams
 }

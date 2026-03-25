@@ -13,6 +13,9 @@ export interface IHotel extends Document {
     createdTime: Date;
     verified: boolean;
   };
+  resetPasswordOtp?: number;
+  resetPasswordExpires?: Date;
+  resetPasswordRequest: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

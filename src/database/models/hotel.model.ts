@@ -34,6 +34,9 @@ const HotelSchema = new Schema<IHotel>(
         createdTime: Date,
         verified: Boolean,
       },
+      resetPasswordOtp: { type: Number },
+      resetPasswordExpires: { type: Date },
+      resetPasswordRequest: {type: Boolean, default: false},
       createdAt: {
         type: Date,
         default: Date.now,

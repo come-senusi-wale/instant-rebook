@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import HotelModel from "../../database/models/hotel.model";
+import { sendForgotPasswordEmail } from "../../utils/email/emails.util";
 
 export const hotelSignUpController = async (
     req: Request,
@@ -148,11 +149,73 @@ export const hotelSignInController = async (
       res.json({
         message: "Login successfully",
         Token: accessToken,
+        hotel: {
+          name: hotel.name
+        }
       });
   
       
   } catch (err: any) {
       // signup error
       res.status(500).json({ message: err.message });
+  }
+}
+
+export async function hotelForgotPasswordController(req: Request, res: Response): Promise<Response> {
+  const { email } = req.body;
+  try {
+    const hotel = await HotelModel.findOne({ email });
+    if (!hotel) {
+      return res.status(404).json({ message: 'Hotel not found' });
+    }
+
+    // Generate OTP
+    const otp = Math.floor(1000 + Math.random() * 9000);
+
+    hotel.resetPasswordExpires = new Date(); // 30 minutes from now
+    hotel.resetPasswordExpires.setMinutes(hotel.resetPasswordExpires.getMinutes() + 15);
+    hotel.resetPasswordOtp = otp;
+    hotel.resetPasswordRequest = true;
+
+    await hotel.save();
+
+    // Send OTP to user's email
+    await sendForgotPasswordEmail(email, otp);
+
+    return res.status(200).json({ message: 'OTP sent to email for password reset' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
+export async function hotelResetPasswordController(req: Request, res: Response): Promise<Response> {
+  try {
+
+    const { email, otp,  password } = req.body;
+    const hotel = await HotelModel.findOne({ email });
+    if (!hotel) {
+      return res.status(404).json({ message: 'Invalid request' });
+    }
+
+    // Check if OTP is valid and not expired
+    if (hotel.resetPasswordOtp !== parseInt(otp.trim(), 10)) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
+    }
+
+    if (!hotel.resetPasswordRequest) {
+      return res.status(400).json({ message: 'Please request for password change' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    hotel.resetPasswordRequest = false
+    hotel.password = hashedPassword
+    await hotel.save()
+    
+    return res.status(200).json({ message: 'password successfully change' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 }
