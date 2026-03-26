@@ -201,7 +201,11 @@ export const validateResetPasswordParams = [
 ]
 
 
-
+export const validateCustomerIdParams = [
+  body("customerId")
+    .notEmpty()
+    .withMessage("Please provide a valid customerId"),
+]
 
 
 export const requestValidation = {
@@ -212,5 +216,6 @@ export const requestValidation = {
   validateGetRoomByStatusParams,
   validateBookRoomParams,
   validateForgotPasswordParams,
-  validateResetPasswordParams
+  validateResetPasswordParams,
+  validateCustomerIdParams
 }

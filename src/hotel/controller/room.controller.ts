@@ -314,9 +314,9 @@ const searchHotels = async (query: any, userId: any) => {
   }
 
   // 🔹 branch logic
-  if (userHotel && userHotel.branches && userHotel.branches.length > 0) {
-    hotelMatch._id = { $in: userHotel.branches };
-  }
+  // if (userHotel && userHotel.branches && userHotel.branches.length > 0) {
+  //   hotelMatch._id = { $in: userHotel.branches };
+  // }
 
   const hotels = await HotelModel.aggregate([
     {

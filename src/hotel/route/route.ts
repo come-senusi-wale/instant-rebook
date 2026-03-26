@@ -6,7 +6,7 @@ import { singleFileUpload } from '../../admin/middleware/fileupload.middleware';
 import { hotelForgotPasswordController, hotelResetPasswordController, hotelSignInController, hotelSignUpController, searchHotelPartnerController } from "../controller/auth.controller";
 import { getAllRoomController, getSingleRoomController, getTotalRoomByStatusController, searchForRoomController, userAddRoomController } from "../controller/room.controller";
 import { checkHotelRole } from "../middleware/role.checker.middleware";
-import { createCustomerBookingController, placementRateController, totalFailBookingsController, totalGuestExpectancyController, totalGuestRebookedController } from "../controller/customer.controller";
+import { comfirmArrivalController, createCustomerBookingController, expectedArrivalController, noShowController, placementRateController, totalFailBookingsController, totalGuestExpectancyController, totalGuestRebookedController } from "../controller/customer.controller";
 
 router.post("/create-account", requestValidation.validateCreateAccountParams, requestValidation.validateFormData, hotelSignUpController ); 
 router.post("/login", requestValidation.validateLoginParams, requestValidation.validateFormData, hotelSignInController );
@@ -23,6 +23,10 @@ router.get("/search-room", checkHotelRole, searchForRoomController );
 router.get("/rooms/:roomId", checkHotelRole, getSingleRoomController);
 
 router.post("/booking", checkHotelRole, requestValidation.validateBookRoomParams, requestValidation.validateFormData, createCustomerBookingController );
+
+router.get("/expected-arrival", checkHotelRole, expectedArrivalController );
+router.post("/comfirm-arrival", checkHotelRole, requestValidation.validateCustomerIdParams, requestValidation.validateFormData, comfirmArrivalController );
+router.post("/no-show", checkHotelRole, requestValidation.validateCustomerIdParams, requestValidation.validateFormData, noShowController );
 
 router.get("/guest-rebooked", checkHotelRole, totalGuestRebookedController );
 router.get("/fail-booking", checkHotelRole, totalFailBookingsController );

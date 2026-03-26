@@ -52,6 +52,9 @@ const TestQuestionSchema = new Schema<ICustomer>(
         enum: Object.values(CustomerStatus),  
         default: CustomerStatus.Pending
       },
+      comfirmCode: {
+        type: String,
+      },
       createdAt: {
         type: Date,
         default: Date.now,

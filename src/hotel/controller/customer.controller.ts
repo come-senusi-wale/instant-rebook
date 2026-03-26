@@ -5,6 +5,7 @@ import RoomModel from "../../database/models/room.model";
 import CustomerModel from "../../database/models/costomer.model";
 import { CustomerStatus } from "../../database/interface/customer.interface";
 import { RoomStatus } from "../../database/interface/room.interface";
+import { generateCode } from "../../utils/otpGenerator";
 
 
 export const createCustomerBookingController = async (
@@ -31,6 +32,8 @@ export const createCustomerBookingController = async (
     room.status = RoomStatus.Hold
     await room.save()
 
+    let comfirmCode = generateCode()
+
     const booking = await CustomerModel.create({
     hotel: room.hotel,
     room: room._id,
@@ -43,6 +46,7 @@ export const createCustomerBookingController = async (
     guest: guest,
     price: room.price,
     taxe: taxe,
+    comfirmCode: comfirmCode
   });
 
     return res.status(200).json({ data: booking});
@@ -133,6 +137,108 @@ export const placementRateController = async (req: Request, res: Response,) => {
       totalBookings: total,
       successfulBookings: success,
       successRate: `${percentage}%`
+    });
+
+  } catch (err: any) {
+     res.status(500).json({ message: err.message });
+  }
+};
+
+export const expectedArrivalController = async (req: Request, res: Response,) => {
+  try {
+    const loginHotelId = req.hotel?._id;
+
+    const total = await CustomerModel.countDocuments({
+      hotel: loginHotelId,
+      status: CustomerStatus.Pending
+    });
+
+    const expectedArrivals = await CustomerModel.find({
+      hotel: loginHotelId,
+      status: CustomerStatus.Pending
+    });
+
+
+    res.json({
+      success: true,
+      total: total,
+      expectedArrivals
+    });
+
+  } catch (err: any) {
+     res.status(500).json({ message: err.message });
+  }
+};
+
+
+export const comfirmArrivalController = async (req: Request, res: Response,) => {
+  try {
+     const { customerId } = req.body;
+    const loginHotelId = req.hotel?._id;
+
+    const expectedArrival = await CustomerModel.findOne({
+      _id: customerId,
+      hotel: loginHotelId,
+      status: CustomerStatus.Pending
+    });
+
+    if (!expectedArrival) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found"
+      });
+    }
+
+    await RoomModel.findOneAndUpdate(
+      {_id: expectedArrival.room},
+      {status: RoomStatus.Booked}
+    )
+
+    expectedArrival.status = CustomerStatus.Booked
+    await expectedArrival.save()
+
+
+    res.json({
+      success: true,
+      message: "arrival comfirm successfully"
+    });
+
+  } catch (err: any) {
+     res.status(500).json({ message: err.message });
+  }
+};
+
+
+export const noShowController = async (req: Request, res: Response,) => {
+  try {
+     const { customerId } = req.body;
+    const loginHotelId = req.hotel?._id;
+
+    const expectedArrival = await CustomerModel.findOne({
+      _id: customerId,
+      hotel: loginHotelId,
+      status: CustomerStatus.Pending
+    });
+
+    if (!expectedArrival) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found"
+      });
+    }
+
+    await RoomModel.findOneAndUpdate(
+      {_id: expectedArrival.room},
+      {status: RoomStatus.Available}
+    )
+
+    expectedArrival.status = CustomerStatus.Canceled
+    await expectedArrival.save()
+
+
+    res.json({
+      success: true,
+      message: "arrival comfirm successfully"
     });
 
   } catch (err: any) {

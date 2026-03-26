@@ -22,6 +22,7 @@ export interface ICustomer extends Document {
   price: number;
   taxe: number;
   status: CustomerStatus;
+  comfirmCode: string;
   createdAt: Date;
   updatedAt: Date;
 }
