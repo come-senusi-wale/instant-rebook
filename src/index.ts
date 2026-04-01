@@ -29,11 +29,29 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use("/uploads", express.static("../public"));
 app.use(express.json());
+
+const allowedOrigins = [
+  "http://localhost:3000", 
+  "http://localhost:3001", 
+  "http://localhost:3002",
+  "https://instant-booking-demo.netlify.app"
+];
+
 app.use(
   cors({
-    // origin: ["http://localhost:8080", "http://localhost:5173", "http://localhost:5000", "http://localhost:3000", "http://localhost:8000", "https://www.providers.theraswift.co", "https://www.theraswift.co", "https://theraswift.co"],
-    origin: "*",
-    credentials: true
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // If cookies are used
   })
 );
 app.use(helmet());

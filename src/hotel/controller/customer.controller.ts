@@ -171,6 +171,76 @@ export const expectedArrivalController = async (req: Request, res: Response,) =>
 };
 
 
+export const customersController = async (req: Request, res: Response,) => {
+  try {
+    const loginHotelId = req.hotel?._id;
+    const search = req.query.search 
+    const status = req.query.status 
+    const page = parseInt(req.query.page as string, 10) || 1
+    const limit = parseInt(req.query.limit as string, 10) || 50
+    const skip = (page - 1) * limit;
+
+    const query: any = {hotel: loginHotelId};
+
+    // 🔍 Search by name OR email
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } }
+      ];
+    }
+
+    // 🎯 Filter by status
+    if (status) {
+      query.status = status;
+    }
+
+    const [customers, total] = await Promise.all([
+      CustomerModel.find(query)
+        .sort({ createdAt: -1 }) // latest first
+        .skip(skip)
+        .limit(limit)
+        .populate({
+          path: "hotel",
+          select: "name address",
+        })
+        .populate({
+          path: "bookBy",
+          select: "name address",
+        })
+        .populate({
+          path: "room",
+        }),
+
+
+      CustomerModel.countDocuments(query)
+    ]);
+    
+
+    // const total = await CustomerModel.countDocuments({
+    //   hotel: loginHotelId,
+    //   status: CustomerStatus.Pending
+    // });
+
+    // const expectedArrivals = await CustomerModel.find({
+    //   hotel: loginHotelId,
+    //   status: CustomerStatus.Pending
+    // });
+
+
+    res.json({
+      success: true,
+      total: total,
+      totalPages: Math.ceil(total / limit),
+      customers
+    });
+
+  } catch (err: any) {
+     res.status(500).json({ message: err.message });
+  }
+};
+
+
 export const comfirmArrivalController = async (req: Request, res: Response,) => {
   try {
      const { customerId } = req.body;
@@ -238,7 +308,7 @@ export const noShowController = async (req: Request, res: Response,) => {
 
     res.json({
       success: true,
-      message: "arrival comfirm successfully"
+      message: "Booking canceled successfully"
     });
 
   } catch (err: any) {

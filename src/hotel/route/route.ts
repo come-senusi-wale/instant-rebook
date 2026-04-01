@@ -6,7 +6,8 @@ import { singleFileUpload } from '../../admin/middleware/fileupload.middleware';
 import { hotelForgotPasswordController, hotelResetPasswordController, hotelSignInController, hotelSignUpController, searchHotelPartnerController } from "../controller/auth.controller";
 import { getAllRoomController, getSingleRoomController, getTotalRoomByStatusController, searchForRoomController, userAddRoomController } from "../controller/room.controller";
 import { checkHotelRole } from "../middleware/role.checker.middleware";
-import { comfirmArrivalController, createCustomerBookingController, expectedArrivalController, noShowController, placementRateController, totalFailBookingsController, totalGuestExpectancyController, totalGuestRebookedController } from "../controller/customer.controller";
+import { comfirmArrivalController, createCustomerBookingController, customersController, expectedArrivalController, noShowController, placementRateController, totalFailBookingsController, totalGuestExpectancyController, totalGuestRebookedController } from "../controller/customer.controller";
+import { hotelProfileController, hotelUpdateProfileController } from "../controller/setting.controller";
 
 router.post("/create-account", requestValidation.validateCreateAccountParams, requestValidation.validateFormData, hotelSignUpController ); 
 router.post("/login", requestValidation.validateLoginParams, requestValidation.validateFormData, hotelSignInController );
@@ -27,11 +28,15 @@ router.post("/booking", checkHotelRole, requestValidation.validateBookRoomParams
 router.get("/expected-arrival", checkHotelRole, expectedArrivalController );
 router.post("/comfirm-arrival", checkHotelRole, requestValidation.validateCustomerIdParams, requestValidation.validateFormData, comfirmArrivalController );
 router.post("/no-show", checkHotelRole, requestValidation.validateCustomerIdParams, requestValidation.validateFormData, noShowController );
+router.get("/customers", checkHotelRole, customersController );
 
 router.get("/guest-rebooked", checkHotelRole, totalGuestRebookedController );
 router.get("/fail-booking", checkHotelRole, totalFailBookingsController );
 router.get("/guest-expectancy", checkHotelRole, totalGuestExpectancyController );
 router.get("/placement-rate", checkHotelRole, placementRateController );
+
+router.get("/profile", checkHotelRole, hotelProfileController );
+router.post("/profile-update", checkHotelRole, requestValidation.validateUpdateProfileParams, requestValidation.validateFormData, hotelUpdateProfileController );
 
 
 export default router;

@@ -27,7 +27,8 @@ const HotelSchema = new Schema<IHotel>(
         required: true,
       },
       address: {
-        type: String
+        type: String,
+        default: ""
       },
       emailOtp: {
         otp: String,

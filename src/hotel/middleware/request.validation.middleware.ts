@@ -208,6 +208,33 @@ export const validateCustomerIdParams = [
 ]
 
 
+export const validateUpdateProfileParams = [
+  body("name")
+    .trim()
+    .notEmpty()
+    .withMessage("Name is required"),
+
+  body("address")
+    .trim()
+    .notEmpty()
+    .withMessage("address is required"),
+
+  body("phoneNumber")
+    .trim()
+    .notEmpty()
+    .withMessage("Phone number is required")
+    .isMobilePhone("any")
+    .withMessage("Invalid phone number"),
+
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters long"),
+
+];
+
+
 export const requestValidation = {
   validateFormData,
   validateCreateAccountParams,
@@ -217,5 +244,6 @@ export const requestValidation = {
   validateBookRoomParams,
   validateForgotPasswordParams,
   validateResetPasswordParams,
-  validateCustomerIdParams
+  validateCustomerIdParams,
+  validateUpdateProfileParams
 }
