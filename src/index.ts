@@ -34,7 +34,8 @@ const allowedOrigins = [
   "http://localhost:3000", 
   "http://localhost:3001", 
   "http://localhost:3002",
-  "https://instant-booking-demo.netlify.app"
+  "https://instant-booking-demo.netlify.app",
+  "https://legendary-sfogliatella-1628a3.netlify.app"
 ];
 
 app.use(
