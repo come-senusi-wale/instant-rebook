@@ -4,7 +4,7 @@ const router = express.Router();
 import { requestValidation } from "./../middleware/request.validation.middleware";
 import { singleFileUpload } from '../../admin/middleware/fileupload.middleware';
 import { hotelForgotPasswordController, hotelResetPasswordController, hotelSignInController, hotelSignUpController, searchHotelPartnerController } from "../controller/auth.controller";
-import { getAllRoomController, getSingleRoomController, getTotalRoomByStatusController, searchForRoomController, userAddRoomController } from "../controller/room.controller";
+import { changeRoomImageController, getAllRoomController, getSingleRoomController, getTotalRoomByStatusController, searchForRoomController, userAddRoomController, userEditRoomController, userRomoveRoomController } from "../controller/room.controller";
 import { checkHotelRole } from "../middleware/role.checker.middleware";
 import { comfirmArrivalController, createCustomerBookingController, customersController, expectedArrivalController, noShowController, placementRateController, totalFailBookingsController, totalGuestExpectancyController, totalGuestRebookedController } from "../controller/customer.controller";
 import { hotelProfileController, hotelUpdateProfileController } from "../controller/setting.controller";
@@ -19,6 +19,10 @@ router.get("/hotel-partner-search",  searchHotelPartnerController );
 router.post("/add-room", checkHotelRole, singleFileUpload('picture', ['image']), requestValidation.validateAddRoomParams, requestValidation.validateFormData, userAddRoomController );
 router.get("/rooms", checkHotelRole, getAllRoomController );
 router.get("/rooms-by-status", checkHotelRole, requestValidation.validateGetRoomByStatusParams, requestValidation.validateFormData, getTotalRoomByStatusController );
+
+router.post("/edit-room/:roomId", checkHotelRole, requestValidation.validateAddRoomParams, requestValidation.validateFormData,  userEditRoomController );
+router.post("/change-room-picture/:roomId", checkHotelRole, singleFileUpload('picture', ['image']), changeRoomImageController );
+router.post("/remove-room/:roomId", checkHotelRole, userRomoveRoomController );
 
 router.get("/search-room", checkHotelRole, searchForRoomController );
 router.get("/rooms/:roomId", checkHotelRole, getSingleRoomController);

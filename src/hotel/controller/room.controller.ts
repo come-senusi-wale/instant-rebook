@@ -54,6 +54,120 @@ export const userAddRoomController = async (
   
 }
 
+export const userRomoveRoomController = async (
+    req: Request,
+    res: Response,
+) => {
+  
+  try {
+    const { roomId } = req.params;
+
+    const userId = req.hotel?._id
+
+    const room = await RoomModel.findOne({ _id: roomId,  hotel: userId})
+    if (!room) {
+      return res
+      .status(401)
+      .json({ message: "room not found" });
+    }
+
+    if (room.status != RoomStatus.Available ) {
+       return res
+      .status(401)
+      .json({ message: "room not availble" });
+    }
+
+    room.status = RoomStatus.Removed
+    await room.save()
+
+    return res.status(200).json({ message: "Room deleted successfully"});
+    
+  } catch (err: any) {
+    // signup error
+    res.status(500).json({ message: err.message });
+  }
+  
+}
+
+export const userEditRoomController = async (
+    req: Request,
+    res: Response,
+) => {
+  try {
+    const {
+      type, price, parking, accessibility, petFriendly, breakfast, wifi, pool, maxGuest
+    } = req.body;
+
+    const { roomId } = req.params;
+
+    const userId = req.hotel?._id
+
+    const room = await RoomModel.findOne({ _id: roomId,  hotel: userId})
+    if (!room) {
+      return res
+      .status(401)
+      .json({ message: "room not found" });
+    }
+
+    room.type = type
+    room.price = price
+    room.accessibility = accessibility
+    room.parking = parking
+    room.petFriendly = petFriendly
+    room.breakfast = breakfast
+    room.wifi = wifi
+    room.pool = pool
+    room.maxGuest = maxGuest
+    await room.save()
+
+    return res.status(200).json({ message: "Room updated successfully"});
+    
+  } catch (err: any) {
+    // signup error
+    res.status(500).json({ message: err.message });
+  }
+  
+}
+
+export const changeRoomImageController = async (
+    req: Request,
+    res: Response,
+) => {  
+  try {
+    const { roomId } = req.params;
+
+    const userId = req.hotel?._id
+
+    const file = req.file
+    if (!file) {
+      return res
+        .status(401)
+        .json({ message: "please image is required" });
+    }
+
+    const room = await RoomModel.findOne({ _id: roomId,  hotel: userId})
+    if (!room) {
+      return res
+      .status(401)
+      .json({ message: "room not found" });
+    }
+
+    const uploadResults = await uploadToCloudinary(file)
+
+    const picture = uploadResults.secure_url
+
+    room.picture = picture
+    await room.save()
+
+    return res.status(200).json({ message: "Room updated successfully"});
+    
+  } catch (err: any) {
+    // signup error
+    res.status(500).json({ message: err.message });
+  }
+  
+}
+
 
 export const getAllRoomController = async (
     req: Request,

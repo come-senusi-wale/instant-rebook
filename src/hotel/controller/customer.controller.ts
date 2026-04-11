@@ -29,6 +29,12 @@ export const createCustomerBookingController = async (
       });
     }
 
+    if (room.status != RoomStatus.Available ) {
+       return res
+      .status(401)
+      .json({ message: "room not availble for booking" });
+    }
+
     room.status = RoomStatus.Hold
     await room.save()
 
