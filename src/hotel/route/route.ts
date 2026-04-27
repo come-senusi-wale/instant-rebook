@@ -6,7 +6,7 @@ import { singleFileUpload } from '../../admin/middleware/fileupload.middleware';
 import { hotelForgotPasswordController, hotelResetPasswordController, hotelSignInController, hotelSignUpController, searchHotelPartnerController } from "../controller/auth.controller";
 import { changeRoomImageController, getAllRoomController, getSingleRoomController, getTotalRoomByStatusController, searchForRoomController, userAddRoomController, userEditRoomController, userRomoveRoomController } from "../controller/room.controller";
 import { checkHotelRole } from "../middleware/role.checker.middleware";
-import { comfirmArrivalController, createCustomerBookingController, customersController, expectedArrivalController, noShowController, placementRateController, totalFailBookingsController, totalGuestExpectancyController, totalGuestRebookedController } from "../controller/customer.controller";
+import { checkInVerificationController, comfirmArrivalController, createCustomerBookingController, customersController, expectedArrivalController, noShowController, placementRateController, totalFailBookingsController, totalGuestExpectancyController, totalGuestRebookedController } from "../controller/customer.controller";
 import { hotelProfileController, hotelUpdateProfileController } from "../controller/setting.controller";
 
 router.post("/create-account", requestValidation.validateCreateAccountParams, requestValidation.validateFormData, hotelSignUpController ); 
@@ -30,6 +30,7 @@ router.get("/rooms/:roomId", checkHotelRole, getSingleRoomController);
 router.post("/booking", checkHotelRole, requestValidation.validateBookRoomParams, requestValidation.validateFormData, createCustomerBookingController );
 
 router.get("/expected-arrival", checkHotelRole, expectedArrivalController );
+router.post("/check-in-verification", checkHotelRole, requestValidation.validateCheckInParams, requestValidation.validateFormData, checkInVerificationController );
 router.post("/comfirm-arrival", checkHotelRole, requestValidation.validateCustomerIdParams, requestValidation.validateFormData, comfirmArrivalController );
 router.post("/no-show", checkHotelRole, requestValidation.validateCustomerIdParams, requestValidation.validateFormData, noShowController );
 router.get("/customers", checkHotelRole, customersController );

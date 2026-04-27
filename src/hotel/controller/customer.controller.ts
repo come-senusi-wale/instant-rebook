@@ -6,6 +6,12 @@ import CustomerModel from "../../database/models/costomer.model";
 import { CustomerStatus } from "../../database/interface/customer.interface";
 import { RoomStatus } from "../../database/interface/room.interface";
 import { generateCode } from "../../utils/otpGenerator";
+import { sendRecieptEmail } from "../../utils/email/emails.util";
+import crypto from "crypto";
+
+function generateSecureSixDigit(): number {
+  return crypto.randomInt(100000, 1000000);
+}
 
 
 export const createCustomerBookingController = async (
@@ -38,22 +44,35 @@ export const createCustomerBookingController = async (
     room.status = RoomStatus.Hold
     await room.save()
 
-    let comfirmCode = generateCode()
+    // let comfirmCode = generateCode()
+    let comfirmCode =  generateSecureSixDigit()
 
     const booking = await CustomerModel.create({
-    hotel: room.hotel,
-    room: room._id,
-    bookBy: req.hotel?._id,
-    name: name,
-    email: email,
-    phoneNumber: phoneNumber,
-    checkIn: checkIn,
-    checkOut: checkOut,
-    guest: guest,
-    price: room.price,
-    taxe: taxe,
-    comfirmCode: comfirmCode
-  });
+      hotel: room.hotel,
+      room: room._id,
+      bookBy: req.hotel?._id,
+      name: name,
+      email: email,
+      phoneNumber: phoneNumber,
+      checkIn: checkIn,
+      checkOut: checkOut,
+      guest: guest,
+      price: room.price,
+      taxe: taxe,
+      comfirmCode: comfirmCode
+    });
+
+    sendRecieptEmail(email, {
+      id: comfirmCode.toString(),
+      guest,
+      name,
+      checkIn,
+      checkOut,
+      hotelName: req.hotel?.name!,
+      hotelPhone: req.hotel?.phoneNumber!,
+      clientPhone: phoneNumber,
+      totalPrice: room.price
+    })
 
     return res.status(200).json({ data: booking});
     
@@ -315,6 +334,35 @@ export const noShowController = async (req: Request, res: Response,) => {
     res.json({
       success: true,
       message: "Booking canceled successfully"
+    });
+
+  } catch (err: any) {
+     res.status(500).json({ message: err.message });
+  }
+};
+
+
+export const checkInVerificationController = async (req: Request, res: Response,) => {
+  try {
+     const { comfirmationCode } = req.body;
+    const loginHotelId = req.hotel?._id;
+
+    const expectedArrival = await CustomerModel.findOne({
+      comfirmCode: comfirmationCode,
+      hotel: loginHotelId,
+      status: CustomerStatus.Pending
+    });
+
+    if (!expectedArrival) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      customer: expectedArrival
     });
 
   } catch (err: any) {

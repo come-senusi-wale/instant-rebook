@@ -207,6 +207,12 @@ export const validateCustomerIdParams = [
     .withMessage("Please provide a valid customerId"),
 ]
 
+export const validateCheckInParams = [
+  body("comfirmationCode")
+    .notEmpty()
+    .withMessage("Please provide a valid comfirmationCode"),
+]
+
 
 export const validateUpdateProfileParams = [
   body("name")
@@ -245,5 +251,6 @@ export const requestValidation = {
   validateForgotPasswordParams,
   validateResetPasswordParams,
   validateCustomerIdParams,
+  validateCheckInParams,
   validateUpdateProfileParams
 }

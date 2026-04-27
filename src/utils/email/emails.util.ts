@@ -1,4 +1,5 @@
 import { sendEmail } from "./bravoEmail.utl";
+import { recieptEmailTemplate } from "./customer.recieptEmail.util";
 
 function createEmailTemplate(subject: string, body: string): string {
   const logoUrl =
@@ -156,6 +157,19 @@ async function sendWelcomeEmail(email: string, name: string): Promise<void> {
   }
 }
 
+async function sendRecieptEmail(
+  email: string,
+  {id, guest, name, checkIn, checkOut, hotelName, hotelPhone, clientPhone, totalPrice}:
+  {id: string, guest: string, name: string, checkIn: string, checkOut: string, hotelName: string, hotelPhone: string, clientPhone: string, totalPrice: number}
+): Promise<void> {
+  try {
+    const html = recieptEmailTemplate(id, guest, name, checkIn, checkOut, hotelName, hotelPhone, clientPhone, totalPrice);
+    sendEmail(email, 'Receipt for Rebook Booking', html)
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+}
+
 
 // async function sendWelcomeAgency(email: string): Promise<void> {
 //   try {
@@ -170,5 +184,6 @@ async function sendWelcomeEmail(email: string, name: string): Promise<void> {
 export {
     sendVerificationEmail,
     sendWelcomeEmail,
-    sendForgotPasswordEmail
+    sendForgotPasswordEmail,
+    sendRecieptEmail
 };
